@@ -6,7 +6,6 @@ pub fn day6() {
 }
 
 fn part1(str: &str) -> i64 {
-    let mut input = vec![];
     let arr = str
         .lines()
         .map(|s| {
@@ -19,12 +18,9 @@ fn part1(str: &str) -> i64 {
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
-    arr[0].iter().zip(arr[1].iter()).for_each(|(x, y)| {
-        input.push((*x, *y));
-    });
-
-    input
+    arr[0]
         .iter()
+        .zip(arr[1].iter())
         .map(|(time, distance)| calc(*time, *distance))
         .product()
 }
