@@ -1,5 +1,5 @@
 pub fn day2() {
-    let strs = crate::fileread::get_lines_from_file::<String>("day2.txt");
+    let strs = include_str!("../day2.txt").lines().collect::<Vec<_>>();
 
     let mut total = 0;
     for str in &strs {

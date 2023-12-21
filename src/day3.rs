@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 pub fn day3() {
-    let strs = crate::fileread::get_lines_from_file::<Vec<char>>("day3.txt");
+    let strs = include_str!("../day3.txt").lines().map(|l| l.chars().collect()).collect();
     let mut total = part2(&strs);
     println!("total: {}", total);
 }

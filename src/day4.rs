@@ -1,5 +1,5 @@
 pub fn day4() {
-    let strs = crate::fileread::get_lines_from_file::<String>("day4.txt");
+    let strs = include_str!("../day4.txt").lines().collect::<Vec<_>>();
 
     let mut total = 0;
     for str in &strs {
@@ -17,7 +17,7 @@ fn part1(str: &str) -> i32 {
     }
 }
 
-fn part2(strs: &Vec<String>) -> i32 {
+fn part2(strs: &Vec<&str>) -> i32 {
     let mut card_counts = vec![1; strs.len()];
     let mut total = 0;
     for i in 0..card_counts.len() {
