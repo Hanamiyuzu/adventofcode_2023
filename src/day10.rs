@@ -8,8 +8,8 @@ pub fn day10() {
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Node {
     pos: (i32, i32),
-    value: char,
     directions: Vec<(i32, i32)>,
+    //value: char,
 }
 
 impl Node {
@@ -65,6 +65,7 @@ fn part1(str: &str) -> i32 {
     polygon.len() as i32 / 2
 }
 
+// Ray Casting Algorithm or Shoelace_formula
 fn part2(str: &str) -> i32 {
     let maze = parse(str);
     let mut polygon = maze.walk();
@@ -110,8 +111,8 @@ fn parse(str: &str) -> Maze {
                 }
                 Node {
                     pos: (row, col),
-                    value: c,
                     directions,
+                    //value: c,
                 }
             })
             .collect();
