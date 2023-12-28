@@ -3,7 +3,7 @@ use std::{collections::HashMap, time::Instant};
 pub fn day12() {
     let str = include_str!("../day12.txt");
     let timer = Instant::now();
-    let total = part1(str);
+    let total = part2(str);
     println!("total: {} in {:?}", total, timer.elapsed());
 }
 
@@ -11,6 +11,17 @@ fn part1(str: &str) -> u64 {
     parse(str)
         .iter()
         .map(|(pattern, counts)| collect(pattern.as_bytes(), &counts))
+        .sum()
+}
+
+fn part2(str: &str) -> u64 {
+    parse(str)
+        .iter()
+        .map(|(pattern, counts)| {
+            let pattern = vec![*pattern; 5].join("?");
+            let counts = (0..5).flat_map(|_| counts.clone()).collect::<Vec<_>>();
+            collect(pattern.as_bytes(), &counts)
+        })
         .sum()
 }
 
@@ -94,11 +105,13 @@ mod tests {
 ????.######..#####. 1,6,5
 ?###???????? 3,2,1";
         assert_eq!(part1(str), 21);
+        assert_eq!(part2(str), 525152);
     }
 
     #[test]
     fn test_day12_2() {
         let str = include_str!("../day12.txt");
         assert_eq!(part1(str), 7705);
+        assert_eq!(part2(str), 50338344809230);
     }
 }
