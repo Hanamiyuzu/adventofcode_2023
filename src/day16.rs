@@ -3,7 +3,7 @@ use std::collections::HashSet;
 pub fn day16() {
     let str = include_str!("../day16.txt");
     let timer = std::time::Instant::now();
-    let total = part1(str);
+    let total = part2(str);
     println!("total: {} in {:?}", total, timer.elapsed());
 }
 
@@ -15,6 +15,67 @@ fn part1(str: &str) -> i32 {
     refract(&map, (0, 0, DIR::RIGHT), &mut visited, &mut cache);
 
     visited.iter().flatten().filter(|&&x| x).count() as i32
+}
+
+fn part2(str: &str) -> i32 {
+    //todo!("Code will stack overflow in debug. Replace it with dp when I have time.");
+
+    let map = parse(str);
+
+    let (rows, cols) = (map.len() as i32, map[0].len() as i32);
+    assert!(rows > 0 && cols > 0);
+
+    *[
+        (0..cols)
+            .map(|col| {
+                let mut cache = HashSet::with_capacity(4 * map.len() * map[0].len());
+                let mut visited = vec![vec![false; map[0].len()]; map.len()];
+                refract(&map, (0, col as i32, DIR::BOTTOM), &mut visited, &mut cache);
+                visited.iter().flatten().filter(|&&x| x).count() as i32
+            })
+            .max()
+            .unwrap(),
+        (0..cols)
+            .map(|col| {
+                let mut cache = HashSet::with_capacity(4 * map.len() * map[0].len());
+                let mut visited = vec![vec![false; map[0].len()]; map.len()];
+                refract(
+                    &map,
+                    (rows - 1, col as i32, DIR::TOP),
+                    &mut visited,
+                    &mut cache,
+                );
+                visited.iter().flatten().filter(|&&x| x).count() as i32
+            })
+            .max()
+            .unwrap(),
+        (0..rows)
+            .map(|row| {
+                let mut cache = HashSet::with_capacity(4 * map.len() * map[0].len());
+                let mut visited = vec![vec![false; map[0].len()]; map.len()];
+                refract(&map, (row as i32, 0, DIR::RIGHT), &mut visited, &mut cache);
+                visited.iter().flatten().filter(|&&x| x).count() as i32
+            })
+            .max()
+            .unwrap(),
+        (0..rows)
+            .map(|row| {
+                let mut cache = HashSet::with_capacity(4 * map.len() * map[0].len());
+                let mut visited = vec![vec![false; map[0].len()]; map.len()];
+                refract(
+                    &map,
+                    (row as i32, cols - 1, DIR::LEFT),
+                    &mut visited,
+                    &mut cache,
+                );
+                visited.iter().flatten().filter(|&&x| x).count() as i32
+            })
+            .max()
+            .unwrap(),
+    ]
+    .iter()
+    .max()
+    .unwrap()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -109,11 +170,13 @@ mod tests {
 .|....-|.\
 ..//.|....";
         assert_eq!(part1(str), 46);
+        assert_eq!(part2(str), 51);
     }
 
     #[test]
     fn test_day16_2() {
         let str = include_str!("../day16.txt");
         assert_eq!(part1(str), 8389);
+        assert_eq!(part2(str), 8564);
     }
 }
