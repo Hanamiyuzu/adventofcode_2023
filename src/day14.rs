@@ -53,7 +53,7 @@ fn part2(str: &str) -> usize {
 }
 
 fn parse(str: &str) -> Vec<Vec<char>> {
-    str.split('\n').map(|s| s.chars().collect()).collect()
+    str.lines().map(|s| s.chars().collect()).collect()
 }
 
 fn north_roll(map: &mut Vec<Vec<char>>) {
