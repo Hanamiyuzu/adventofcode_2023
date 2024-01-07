@@ -3,16 +3,22 @@ use std::collections::{BinaryHeap, HashSet};
 pub fn day17() {
     let str = include_str!("../day17.txt");
     let timer = std::time::Instant::now();
-    let total = part1(str);
+    let total = part2(str);
     println!("total: {} in {:?}", total, timer.elapsed());
 }
 
 fn part1(str: &str) -> i32 {
-    let map = str
-        .lines()
+    shortest_path(&parse(str), 0, 3)
+}
+
+fn part2(str: &str) -> i32 {
+    shortest_path(&parse(str), 4, 10)
+}
+
+fn parse(str: &str) -> Vec<Vec<i32>> {
+    str.lines()
         .map(|s| s.chars().map(|c| c as i32 - 48).collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-    shortest_path(&map)
+        .collect::<Vec<_>>()
 }
 
 #[derive(Eq, Debug, Clone, Hash)]
@@ -42,7 +48,7 @@ impl Ord for State {
     }
 }
 
-fn shortest_path(map: &[Vec<i32>]) -> i32 {
+fn shortest_path(map: &[Vec<i32>], min_step: i32, max_step: i32) -> i32 {
     let (rows, cols) = (map.len() as i32, map[0].len() as i32);
     let mut queue = BinaryHeap::new();
     queue.push(State {
@@ -60,7 +66,7 @@ fn shortest_path(map: &[Vec<i32>]) -> i32 {
         if !visited.insert((st.row, st.col, st.dir, st.same_step)) {
             continue;
         }
-        if st.same_step < 3 {
+        if st.same_step < max_step {
             let (nrow, ncol) = (st.row + st.dir.0, st.col + st.dir.1);
             if nrow >= 0 && ncol >= 0 && nrow < rows && ncol < cols {
                 queue.push(State {
@@ -72,8 +78,11 @@ fn shortest_path(map: &[Vec<i32>]) -> i32 {
                 });
             }
         }
-        for ndir in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
-            if ndir != st.dir && (-ndir.0, -ndir.1) != st.dir {
+        if st.same_step >= min_step {
+            for ndir in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+                if ndir == st.dir || (-ndir.0, -ndir.1) == st.dir {
+                    continue;
+                }
                 let (nrow, ncol) = (st.row + ndir.0, st.col + ndir.1);
                 if nrow >= 0 && ncol >= 0 && nrow < rows && ncol < cols {
                     queue.push(State {
@@ -110,11 +119,13 @@ mod tests {
 2546548887735
 4322674655533";
         assert_eq!(part1(str), 102);
+        assert_eq!(part2(str), 94);
     }
 
     #[test]
     fn test_day17_2() {
         let str = include_str!("../day17.txt");
         assert_eq!(part1(str), 959);
+        assert_eq!(part2(str), 1135);
     }
 }
