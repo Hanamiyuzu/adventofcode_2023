@@ -58,7 +58,7 @@ fn shortest_path(map: &[Vec<i32>], min_step: i32, max_step: i32) -> i32 {
         expend: 0,
         same_step: 0,
     });
-    let mut visited = HashSet::with_capacity((rows * cols) as usize);
+    let mut visited = HashSet::with_capacity((rows * cols) as _);
     while let Some(st) = queue.pop() {
         if st.row == rows - 1 && st.col == cols - 1 {
             return st.expend;
