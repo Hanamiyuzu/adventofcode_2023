@@ -6,7 +6,7 @@ pub fn day18() {
 }
 
 fn part1(str: &str) -> i32 {
-    let mut polygon = walk(&parse(str));
+    let polygon = walk(&parse(str));
 
     let mut area = 0;
     for pair in polygon.windows(2) {
