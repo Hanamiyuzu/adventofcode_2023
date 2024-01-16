@@ -3,7 +3,7 @@ use std::collections::HashMap;
 pub fn day19() {
     let str = include_str!("../day19.txt");
     let timer = std::time::Instant::now();
-    let total = part1(str);
+    let total = part2(str);
     println!("total: {} in {:?}", total, timer.elapsed());
 }
 
@@ -25,6 +25,52 @@ fn part1(str: &str) -> i32 {
         })
         .map(|part| part.sum())
         .sum()
+}
+
+fn part2(str: &str) -> i64 {
+    let workflows = parse(str).0;
+    let mut ranges = [b'x', b'm', b'a', b's']
+        .iter()
+        .map(|&x| (x, (1, 4000)))
+        .collect();
+    figure(&workflows, &mut ranges, "in")
+}
+
+fn figure(
+    workflows: &HashMap<&str, Workflow>,
+    ranges: &mut HashMap<u8, (i32, i32)>,
+    name: &str,
+) -> i64 {
+    match name {
+        "R" => 0,
+        "A" => ranges
+            .values()
+            .fold(1, |acc, &(lo, hi)| acc * (hi - lo + 1) as i64),
+        _ => {
+            let mut total = 0;
+            workflows.get(name).unwrap().rules.iter().for_each(|rule| {
+                if let Some(cond) = &rule.cond {
+                    let (lo, hi) = ranges.get(&cond.var).unwrap().clone();
+                    let (t, f) = match cond.op {
+                        b'<' => ((lo, (cond.value - 1).min(hi)), ((cond.value).max(lo), hi)),
+                        b'>' => (((cond.value + 1).max(lo), hi), (lo, (cond.value).min(hi))),
+                        _ => panic!(),
+                    };
+                    if t.0 <= t.1 {
+                        let mut cp = ranges.clone();
+                        cp.insert(cond.var, t);
+                        total += figure(&workflows, &mut cp, rule.res);
+                    }
+                    if f.0 <= f.1 {
+                        ranges.insert(cond.var, f);
+                    }
+                } else {
+                    total += figure(&workflows, ranges, rule.res);
+                }
+            });
+            total
+        }
+    }
 }
 
 struct Cond {
@@ -178,11 +224,13 @@ hdj{m>838:A,pv}
 {x=2461,m=1339,a=466,s=291}
 {x=2127,m=1623,a=2188,s=1013}";
         assert_eq!(part1(str), 19114);
+        assert_eq!(part2(str), 167409079868000);
     }
 
     #[test]
     fn test_day19_2() {
         let str = include_str!("../day19.txt");
         assert_eq!(part1(str), 432427);
+        assert_eq!(part2(str), 143760172569135);
     }
 }
