@@ -8,29 +8,20 @@ pub fn day20() {
 }
 
 fn part1(str: &'static str) -> i64 {
-    unreachable!(); // TODO
     let mut modules = parse(str);
-    for module in modules.iter_mut() {
-        if let Module::Conjunction(_, map, ts) = module.1 {
-            for t in ts {
-                map.insert(t, Pulse::Lo);
-            }
-            map.insert(module.0, Pulse::Lo);
-        }
-    }
-    let (mut hc, mut lc) = (0, 1);
-    for _ in 0..1 {
+    let (mut hc, mut lc) = (0, 1000);
+    for _ in 0..1000 {
         let mut q = VecDeque::from([("broadcaster", Pulse::Lo)]);
         while let Some((n, pulse)) = q.pop_front() {
-            let module = modules.get_mut(n).unwrap();
-            for t in module.t() {
+            for t in modules.get(n).unwrap().ts() {
                 match pulse {
                     Pulse::Lo => lc += 1,
                     Pulse::Hi => hc += 1,
                 }
-                if t == "output" {
+                if t == "rx" || t == "output" {
                     continue;
                 }
+                let module = modules.get_mut(t).unwrap();
                 if !match module {
                     Module::Flipflop(..) => pulse == Pulse::Lo,
                     _ => true,
@@ -38,30 +29,25 @@ fn part1(str: &'static str) -> i64 {
                     continue;
                 }
                 let np = match module {
-                    Module::Broadcaster(p, ..) => {
-                        *p = pulse;
-                        *p
-                    }
+                    Module::Broadcaster(..) => pulse,
                     Module::Flipflop(p, ..) => {
                         if pulse == Pulse::Lo {
                             *p = !*p;
                         }
                         *p
                     }
-                    Module::Conjunction(p, map, ..) => {
+                    Module::Conjunction(map, ..) => {
                         map.insert(n, pulse);
-                        *p = if map.values().all(|&p| p == Pulse::Hi) {
+                        if map.values().all(|&p| p == Pulse::Hi) {
                             Pulse::Lo
                         } else {
                             Pulse::Hi
-                        };
-                        *p
+                        }
                     }
                     _ => panic!(),
                 };
                 q.push_back((t, np));
             }
-            println!("{:?}", modules);
         }
     }
     hc * lc
@@ -83,16 +69,16 @@ impl std::ops::Not for Pulse {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Module {
     Output,
-    Broadcaster(Pulse, Vec<&'static str>),
+    Broadcaster(Vec<&'static str>),
     Flipflop(Pulse, Vec<&'static str>),
-    Conjunction(Pulse, HashMap<&'static str, Pulse>, Vec<&'static str>),
+    Conjunction(HashMap<&'static str, Pulse>, Vec<&'static str>),
 }
 
 impl Module {
-    fn t(&self) -> Vec<&'static str> {
+    fn ts(&self) -> Vec<&'static str> {
         match &self {
             Module::Output => vec![],
             Module::Broadcaster(.., t) => t.clone(),
@@ -109,13 +95,13 @@ fn parse(str: &'static str) -> HashMap<&str, Module> {
             s.split_once(" -> ")
                 .map(|(n, t)| {
                     if n == "broadcaster" {
-                        (n, Module::Broadcaster(Pulse::Lo, t.split(", ").collect()))
+                        (n, Module::Broadcaster(t.split(", ").collect()))
                     } else if let Some(n) = n.strip_prefix('%') {
                         (n, Module::Flipflop(Pulse::Lo, t.split(", ").collect()))
                     } else if let Some(n) = n.strip_prefix('&') {
                         (
                             n,
-                            Module::Conjunction(Pulse::Lo, HashMap::new(), t.split(", ").collect()),
+                            Module::Conjunction(HashMap::new(), t.split(", ").collect()),
                         )
                     } else {
                         panic!();
@@ -124,6 +110,13 @@ fn parse(str: &'static str) -> HashMap<&str, Module> {
                 .unwrap()
         })
         .collect::<HashMap<_, _>>();
+    for (n, module) in modules.clone() {
+        for t in module.ts() {
+            if let Some(Module::Conjunction(map, _)) = modules.get_mut(t) {
+                map.insert(n, Pulse::Lo);
+            }
+        }
+    }
     modules.insert("output", Module::Output);
     modules
 }
