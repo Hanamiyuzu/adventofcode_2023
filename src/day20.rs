@@ -134,4 +134,10 @@ mod tests {
 &inv -> a";
         assert_eq!(part1(str), 32000000);
     }
+
+    #[test]
+    fn test_day20_2() {
+        let str: &'static str = include_str!("../day20.txt");
+        assert_eq!(part1(str), 834323022);
+    }
 }
