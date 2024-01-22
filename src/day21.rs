@@ -16,7 +16,12 @@ fn part1(str: &str, step: i32) -> i32 {
         q1 = HashSet::new();
         for ((i, j), step) in q2 {
             for (row, col) in [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)] {
-                if row < map.len() && col < map[0].len() && map[row][col] != '#' {
+                if row >= 0
+                    && row < map.len() as i32
+                    && col >= 0
+                    && col < map[0].len() as i32
+                    && map[row as usize][col as usize] != '#'
+                {
                     q1.insert(((row, col), step - 1));
                 }
             }
@@ -25,17 +30,17 @@ fn part1(str: &str, step: i32) -> i32 {
     q1.len() as i32
 }
 
-fn parse(str: &str) -> ((usize, usize), Vec<Vec<char>>) {
+fn parse(str: &str) -> ((i32, i32), Vec<Vec<char>>) {
     let mut start = (0, 0);
     let map = str
         .lines()
         .enumerate()
-        .map(|(i, s)| {
+        .map(|(row, s)| {
             s.chars()
                 .enumerate()
-                .map(|(j, c)| {
+                .map(|(col, c)| {
                     if c == 'S' {
-                        start = (i, j);
+                        start = (row as i32, col as i32);
                     }
                     c
                 })
