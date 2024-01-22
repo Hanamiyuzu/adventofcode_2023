@@ -30,6 +30,31 @@ fn part1(str: &str, step: i32) -> i32 {
     q1.len() as i32
 }
 
+fn part2(str: &str, step: i32) -> usize {
+    // I totally hate the f**king number and f**king question
+    unreachable!();
+    let (start, map) = parse(str);
+    let mut q1 = HashSet::from([(start, step)]);
+    let mut q2;
+    for _ in (1..=step).rev() {
+        q2 = q1;
+        q1 = HashSet::with_capacity(q2.len() * 2);
+        for ((i, j), step) in q2 {
+            for (row, col) in [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)] {
+                let (tr, tc) = (
+                    row.rem_euclid(map.len() as i32),
+                    col.rem_euclid(map[0].len() as i32),
+                );
+                if map[tr as usize][tc as usize] != '#' {
+                    q1.insert(((row, col), step - 1));
+                }
+            }
+        }
+    }
+    println!("q1: {}", q1.len());
+    q1.len()
+}
+
 fn parse(str: &str) -> ((i32, i32), Vec<Vec<char>>) {
     let mut start = (0, 0);
     let map = str
@@ -68,6 +93,13 @@ mod tests {
 .##..##.##.
 ...........";
         assert_eq!(part1(str, 6), 16);
+        assert_eq!(part2(str, 6), 16);
+        assert_eq!(part2(str, 10), 50);
+        assert_eq!(part2(str, 50), 1594);
+        //assert_eq!(part2(str, 100), 6536);
+        //assert_eq!(part2(str, 500), 167004);
+        //assert_eq!(part2(str, 1000), 668697);
+        //assert_eq!(part2(str, 5000), 16733044);
     }
 
     #[test]
