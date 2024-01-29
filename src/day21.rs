@@ -80,7 +80,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_day20_1() {
+    fn test_day21_1() {
         let str = "...........
 .....###.#.
 .###.##..#.
@@ -103,7 +103,7 @@ mod tests {
     }
 
     #[test]
-    fn test_day20_2() {
+    fn test_day21_2() {
         let str = include_str!("../day21.txt");
         assert_eq!(part1(str, 64), 3632);
     }
