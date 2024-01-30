@@ -3,12 +3,17 @@ use std::collections::HashSet;
 pub fn day23() {
     let str = include_str!("../day23.txt");
     let timer = std::time::Instant::now();
-    let total = part1(str);
+    let total = part2(str);
     println!("total: {} in {:?}", total, timer.elapsed());
 }
 
 fn part1(str: &str) -> i32 {
     let map = parse(str);
+    dfs(&map)
+}
+
+fn part2(str: &str) -> i32 {
+    let map = parse2(str);
     dfs(&map)
 }
 
@@ -53,6 +58,19 @@ fn parse(str: &str) -> Vec<Vec<char>> {
     str.lines().map(|s| s.chars().collect()).collect()
 }
 
+fn parse2(str: &str) -> Vec<Vec<char>> {
+    str.lines()
+        .map(|s| {
+            s.chars()
+                .map(|c| match c {
+                    '>' | 'v' | '<' | '^' => '.',
+                    _ => c,
+                })
+                .collect()
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -83,11 +101,13 @@ mod tests {
 #.....###...###...#...#
 #####################.#";
         assert_eq!(part1(str), 94);
+        assert_eq!(part2(str), 154);
     }
 
     #[test]
     fn test_day23_2() {
         let str = include_str!("../day23.txt");
         assert_eq!(part1(str), 2030);
+        assert_eq!(part2(str), 6390);
     }
 }
