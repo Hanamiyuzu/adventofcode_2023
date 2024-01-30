@@ -28,11 +28,11 @@ fn dfs(map: &Vec<Vec<char>>) -> i32 {
         if !visited.insert(cur) {
             continue;
         }
-        max_steps = max_steps.max(steps);
         stack.push((steps, cur, true)); // rm
         match map[cur.0 as usize][cur.1 as usize] {
             '.' => {
                 if cur.0 == rows - 1 {
+                    max_steps = max_steps.max(steps);
                     continue;
                 }
                 for dir in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
