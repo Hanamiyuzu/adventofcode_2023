@@ -9,39 +9,44 @@ pub fn day23() {
 
 fn part1(str: &str) -> i32 {
     let map = parse(str);
-    let cur = (0, map[0].iter().position(|&x| x == '.').unwrap() as i32);
-    let mut visited = HashSet::new();
-    dfs(&mut visited, &map, cur)
+    dfs(&map)
 }
 
-fn dfs(visited: &mut HashSet<(i32, i32)>, map: &Vec<Vec<char>>, cur: (i32, i32)) -> i32 {
+fn dfs(map: &Vec<Vec<char>>) -> i32 {
     let (rows, cols) = (map.len() as i32, map[0].len() as i32);
-    if cur.0 < 0 || cur.0 >= rows || cur.1 < 0 || cur.1 >= cols {
-        return 0;
-    }
-    if !visited.insert(cur) {
-        return 0;
-    }
-    let steps = match map[cur.0 as usize][cur.1 as usize] {
-        '#' => 0,
-        '.' => {
-            if cur.0 == rows - 1 {
-                return 1;
-            }
-            [(-1, 0), (1, 0), (0, -1), (0, 1)]
-                .iter()
-                .map(|&dir| dfs(visited, map, (cur.0 + dir.0, cur.1 + dir.1)) + 1)
-                .max()
-                .unwrap()
+    let mut stack = vec![(0, (0, 1), false)];
+    let mut visited = HashSet::new();
+    let mut max_steps = 0;
+    while let Some((steps, cur, rm)) = stack.pop() {
+        if rm {
+            visited.remove(&cur);
+            continue;
         }
-        '>' => dfs(visited, map, (cur.0, cur.1 + 1)) + 1,
-        'v' => dfs(visited, map, (cur.0 + 1, cur.1)) + 1,
-        '<' => dfs(visited, map, (cur.0, cur.1 - 1)) + 1,
-        '^' => dfs(visited, map, (cur.0 - 1, cur.1)) + 1,
-        _ => unreachable!(),
-    };
-    visited.remove(&cur);
-    steps
+        if cur.0 < 0 || cur.0 >= rows || cur.1 < 0 || cur.1 >= cols {
+            continue;
+        }
+        if !visited.insert(cur) {
+            continue;
+        }
+        max_steps = max_steps.max(steps);
+        stack.push((steps, cur, true)); // rm
+        match map[cur.0 as usize][cur.1 as usize] {
+            '.' => {
+                if cur.0 == rows - 1 {
+                    continue;
+                }
+                for dir in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+                    stack.push((steps + 1, (cur.0 + dir.0, cur.1 + dir.1), false))
+                }
+            }
+            '>' => stack.push((steps + 1, (cur.0, cur.1 + 1), false)),
+            'v' => stack.push((steps + 1, (cur.0 + 1, cur.1), false)),
+            '<' => stack.push((steps + 1, (cur.0, cur.1 - 1), false)),
+            '^' => stack.push((steps + 1, (cur.0 - 1, cur.1), false)),
+            _ => continue,
+        }
+    }
+    max_steps
 }
 
 fn parse(str: &str) -> Vec<Vec<char>> {
